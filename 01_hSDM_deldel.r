@@ -186,15 +186,15 @@ get_ci(
                    dd_suit = dd2014_suit, cov = TRUE)[, which(dd2014_suit$Site %in% pelgas_box)], 1, sum) + 2)/(length(pelgas_box) + 4)
 )
 
-save.image("hSDM_github.RData", safe = TRUE)
+save.image("hSDM_deldel.RData", safe = TRUE)
 
 ### simple plots
-# dd4$psi <- apply(psi_hat(model=mod2[[1]], dd=dd4, dd_suit=dd4_suit, cov=TRUE),2,mean)
-# dd4 <- dd4[, c("Lon", "Lat", "psi")]
-# coordinates(dd4) <- ~Lon+Lat
-# # coerce to SpatialPixelsDataFrame
-# gridded(dd4) <- TRUE
-# # coerce to raster
-# dd4 <- raster(dd4)
-# projection(dd4) <-  my_proj
-# plot(dd4)
+dd2014$psi <- apply(psi_hat(model = mod.hSDM.singlevisit1[[1]], dd=dd2014, dd_suit=dd2014_suit, cov=TRUE), 2, mean)
+dd <- dd2014[, c("Lon", "Lat", "psi")]
+coordinates(dd) <- ~ Lon + Lat
+## coerce to SpatialPixelsDataFrame
+gridded(dd) <- TRUE
+## coerce to raster
+dd <- raster (dd)
+projection (dd) <-  my_proj
+plot (dd)
