@@ -15,7 +15,7 @@ DataDir <- "D:/Dossier mathieu/Desktop/hSDM_deldel"
 setwd(WorkDir)
 
 ### load fitted models
-load (paste (WorkDir, "hSDM_github.RData", sep = "/"))
+load (paste (WorkDir, "hSDM_deldel.RData", sep = "/"))
 
 ### Goodness of Fit test of MacKenzie & Bailey
 dd1214_gof_p <- array (NA, dim = c (n_sim, nrow (dd1214_suit), 3, 2))
