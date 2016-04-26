@@ -6,17 +6,29 @@
 ## R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
 ##--------------------------------------------------------------------------------------------------------
 
+# clean working directory
 rm (list = ls ())
-lapply(c("coda", "mvtnorm", "binom", "hSDM", "rgdal", "shapefiles", "maptools", "gdata", "maps", "sp", "raster", "fields", "dplyr", "ggplot2", "marmap"), library, character.only=TRUE)
 
-WorkDir <- "D:/Dossier mathieu/Desktop/hSDM_deldel"
-DataDir <- "D:/Dossier mathieu/Desktop/hSDM_deldel"
+# packages
+pkg <- c("coda", "mvtnorm", "binom", "hSDM", "rgdal", "shapefiles", "maptools", "gdata", "maps", "sp", "raster", "fields", "dplyr", "ggplot2", "marmap")
+check.install.pkg <- function (pkg) {
+  if (!require(pkg,character.only=TRUE)) {
+    install.packages(pkg,dependencies=TRUE)
+    require(pkg,character.only=TRUE)
+  }
+}
+lapply(pkg, check.install.pkg)
 
-setwd(WorkDir)
+# directory to save results
+dir.create("results")
+
+# set seed for reproducibility
+seed <- 1234
+set.seed(seed)
 
 ### load a bunch of custom functions for this analysis
 ## these functions are all built on hSDM main functions
-source (paste (DataDir, "single_visit_occupancy_fct2source.r", sep = "/"))
+source ("R/single_visit_occupancy_fct2source.r")
 
 ### prepare Landscape for hSDM
 lat <- seq (43.00, 48.40, 0.20)
@@ -38,22 +50,21 @@ neighbors.mat <- adjacent (Landscape, cells = c (1:ncells),
                            directions = 8, pairs = TRUE, sorted = TRUE
                            )
 n.neighbors <- as.data.frame (table (as.factor (neighbors.mat[, 1])))[, 2]
-summary (n.neighbors)
 adj <- neighbors.mat[, 2]
 
-### Generate symmetric adjacency matrix, A
-A <- matrix (0, ncells, ncells)
-index.start <- 1
-for (i in 1:ncells) {
-  index.end <- index.start + n.neighbors[i] - 1
-  A[i, adj[c (index.start:index.end)]] <- 1
-  index.start <- index.end + 1
-}
+## GV: This code should not be needed. Onl to generate simulated data.
+# ### Generate symmetric adjacency matrix, A
+# A <- matrix (0, ncells, ncells)
+# index.start <- 1
+# for (i in 1:ncells) {
+#   index.end <- index.start + n.neighbors[i] - 1
+#   A[i, adj[c (index.start:index.end)]] <- 1
+#   index.start <- index.end + 1
+# }
 
 ### load 2012-2014 data: dd means "delphinus delphis"
-dd1214 <- read.table (paste (DataDir, "CommonDolphinBayBiscayPELGAS.txt", sep = "/"), 
-                      header = TRUE, colClasses = "numeric"
-                      )
+dd1214 <- read.table ("data/CommonDolphinBayBiscayPELGAS.txt", 
+                      header = TRUE, colClasses = "numeric")
 
 ### extract cells that were visited in 2012, 2013 and 2014 during the pelgas survey
 pelgas_box <- summarise (group_by (dd1214, Site), 
@@ -197,4 +208,6 @@ gridded(dd) <- TRUE
 ## coerce to raster
 dd <- raster (dd)
 projection (dd) <-  my_proj
+pdf("results/psi.pdf")
 plot (dd)
+dev.off()
